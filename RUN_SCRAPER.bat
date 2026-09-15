@@ -15,14 +15,20 @@ if not exist node_modules (
 echo.
 echo Pathfinder AoN Documentary Scraper
 echo 1. Fighter pilot
-echo 2. Resume configured classes
+echo 2. Diverse four-class pilot
 echo 3. Validate existing output
 echo 4. Resume feats collection
-choice /c 1234 /n /m "Choose 1, 2, 3 or 4: "
+echo 5. Resume all configured classes ^(only after pilot approval^)
+choice /c 12345 /n /m "Choose 1, 2, 3, 4 or 5: "
+if errorlevel 5 goto :all
 if errorlevel 4 goto :feats
 if errorlevel 3 goto :validate
-if errorlevel 2 goto :all
+if errorlevel 2 goto :diverse
 call npm run pilot
+if errorlevel 1 goto :failed
+goto :done
+:diverse
+call node src/cli.js diverse-pilot
 if errorlevel 1 goto :failed
 goto :done
 :all

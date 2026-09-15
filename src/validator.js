@@ -11,6 +11,9 @@ export async function validateAll(root) {
   const warnings = [];
   const ids = new Set();
   const sourcePages = Object.values(manifest.pages).filter(page => !page.skippedExisting && !['archetype-index', 'collection-index'].includes(page.pageType));
+  const expectedEntityIds = Object.values(manifest.pages)
+    .filter(page => ['archetype-index', 'collection-index'].includes(page.pageType))
+    .flatMap(page => page.discoveredEntityIds || []);
 
   for (const record of records) {
     if (ids.has(record.id)) errors.push(`${record.id}: duplicate entity ID`);
@@ -49,6 +52,15 @@ export async function validateAll(root) {
   }
 
   if (records.length !== sourcePages.length) errors.push(`Entity/page mismatch: ${records.length} records for ${sourcePages.length} source pages`);
+  const recordIds = new Set(records.map(record => record.id));
+  for (const expectedId of expectedEntityIds) {
+    const manifestPage = Object.values(manifest.pages).find(page => page.entityId === expectedId);
+    if (!manifestPage) errors.push(`${expectedId}: discovered in index but absent from download manifest`);
+    else if (!manifestPage.skippedExisting && !recordIds.has(expectedId)) errors.push(`${expectedId}: downloaded entity is absent from documentary output`);
+  }
+  if ((await readJson(path.join(root, 'checkpoints', 'download.json'), { failures: [] })).failures.length) {
+    errors.push('Download checkpoint contains unresolved failures');
+  }
   const report = {
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),

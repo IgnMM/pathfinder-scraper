@@ -19,13 +19,16 @@ function argument(name, fallback = null) {
 async function scrape(classes) {
   const downloader = new Downloader(config, root);
   await downloader.initialise();
+  const failures = [];
   for (const className of classes) {
     try {
       await downloader.scrapeClass(className);
     } catch (error) {
       console.error(`[${className}] FAILED: ${error.message}`);
+      failures.push({ className, message: error.message });
     }
   }
+  if (failures.length) throw new Error(`${failures.length} class scrape(s) incomplete; rerun to resume`);
 }
 
 async function scrapeCollection(profileName) {

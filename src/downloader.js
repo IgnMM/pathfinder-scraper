@@ -145,23 +145,41 @@ export class Downloader {
       console.log(`[${profileName}] Downloading index ${indexUrl}`);
       const indexPage = await this.cache(indexUrl, { pageType: 'collection-index', profileName, entityType: profile.entityType });
       const entities = this.discoverCollectionEntities(await this.readCached(indexPage), indexUrl, profile);
+      indexPage.discoveredEntityIds = entities.map(entity => `${profile.entityType}:${slug(entity.name)}`);
+      indexPage.discoveredCount = entities.length;
+      this.manifest.pages[indexUrl] = indexPage;
+      await this.persist();
       entities.forEach(entity => discovered.set(entity.url, entity));
     }
     const entities = [...discovered.values()];
     console.log(`[${profileName}] ${entities.length} entities discovered`);
     let position = 0;
+    let consecutiveFailures = 0;
+    const failures = [];
     for (const entity of entities) {
       position += 1;
       console.log(`[${profileName}] ${position}/${entities.length}: ${entity.name}`);
-      await this.cache(entity.url, {
-        pageType: profile.entityType,
-        entityType: profile.entityType,
-        entityName: entity.name,
-        entityId: `${profile.entityType}:${slug(entity.name)}`,
-        canonicalName: entity.canonicalName,
-        profileName
-      });
+      try {
+        await this.cache(entity.url, {
+          pageType: profile.entityType,
+          entityType: profile.entityType,
+          entityName: entity.name,
+          entityId: `${profile.entityType}:${slug(entity.name)}`,
+          canonicalName: entity.canonicalName,
+          profileName
+        });
+        consecutiveFailures = 0;
+      } catch (error) {
+        consecutiveFailures += 1;
+        failures.push({ name: entity.name, url: entity.url, message: error.message });
+        console.error(`[${profileName}] Failed ${entity.name}: ${error.message}`);
+        if (consecutiveFailures >= 3) {
+          console.error(`[${profileName}] Stopping after 3 consecutive failures; rerun to resume.`);
+          break;
+        }
+      }
     }
+    if (failures.length) throw new Error(`${failures.length} entity download(s) failed; cached work was preserved`);
     return entities;
   }
 
@@ -174,16 +192,34 @@ export class Downloader {
     const classPage = await this.cache(classUrl, { pageType: 'class', classId, className });
     const indexPage = await this.cache(indexUrl, { pageType: 'archetype-index', classId, className });
     const archetypes = this.discoverArchetypes(await this.readCached(indexPage), indexUrl, className);
+    indexPage.discoveredEntityIds = archetypes.map(archetype => `${classId}:${slug(archetype.name)}`);
+    indexPage.discoveredCount = archetypes.length;
+    this.manifest.pages[indexUrl] = indexPage;
+    await this.persist();
     console.log(`[${className}] ${archetypes.length} archetypes discovered`);
     let position = 0;
+    let consecutiveFailures = 0;
+    const failures = [];
     for (const archetype of archetypes) {
       position += 1;
       console.log(`[${className}] ${position}/${archetypes.length}: ${archetype.name}`);
-      await this.cache(archetype.url, {
-        pageType: 'archetype', classId, className, archetypeName: archetype.name,
-        entityId: `${classId}:${slug(archetype.name)}`, fixedName: archetype.fixedName
-      });
+      try {
+        await this.cache(archetype.url, {
+          pageType: 'archetype', classId, className, archetypeName: archetype.name,
+          entityId: `${classId}:${slug(archetype.name)}`, fixedName: archetype.fixedName
+        });
+        consecutiveFailures = 0;
+      } catch (error) {
+        consecutiveFailures += 1;
+        failures.push({ name: archetype.name, url: archetype.url, message: error.message });
+        console.error(`[${className}] Failed ${archetype.name}: ${error.message}`);
+        if (consecutiveFailures >= 3) {
+          console.error(`[${className}] Stopping after 3 consecutive failures; rerun to resume.`);
+          break;
+        }
+      }
     }
+    if (failures.length) throw new Error(`${failures.length} archetype download(s) failed; cached work was preserved`);
     return { classPage, indexPage, archetypes };
   }
 }

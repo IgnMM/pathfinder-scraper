@@ -138,7 +138,13 @@ export class Downloader {
     return [...found.entries()].map(([url, item]) => ({ url, ...item }));
   }
 
-  async scrapeCollection(profileName, profile) {
+  // Downloads and parses only a collection's index page(s) -- e.g. Feats.aspx,
+  // or (for traits, which AoN only lists per category) each Traits.aspx?Type=X
+  // page -- and returns the deduplicated entity list, WITHOUT caching every
+  // individual detail page. Cheap (one request per index URL): use this when
+  // you only need the canonical name/URL catalogue, e.g. for a coverage
+  // check against another app's own data, not a full documentary archive.
+  async discoverCollection(profileName, profile) {
     const discovered = new Map();
     for (const relativeIndexUrl of profile.indexUrls) {
       const indexUrl = resolveUrl(relativeIndexUrl, this.config.baseUrl);
@@ -151,7 +157,11 @@ export class Downloader {
       await this.persist();
       entities.forEach(entity => discovered.set(entity.url, entity));
     }
-    const entities = [...discovered.values()];
+    return [...discovered.values()];
+  }
+
+  async scrapeCollection(profileName, profile) {
+    const entities = await this.discoverCollection(profileName, profile);
     console.log(`[${profileName}] ${entities.length} entities discovered`);
     let position = 0;
     let consecutiveFailures = 0;

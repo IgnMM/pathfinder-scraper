@@ -15,7 +15,23 @@
     },
     "traits": {
       "entityType": "trait",
-      "indexUrls": ["Traits.aspx"],
+      "indexUrls": [
+        "Traits.aspx?Type=Basic%20%28Combat%29",
+        "Traits.aspx?Type=Basic%20%28Faith%29",
+        "Traits.aspx?Type=Basic%20%28Magic%29",
+        "Traits.aspx?Type=Basic%20%28Social%29",
+        "Traits.aspx?Type=Campaign",
+        "Traits.aspx?Type=Cosmic",
+        "Traits.aspx?Type=Equipment",
+        "Traits.aspx?Type=Exemplar",
+        "Traits.aspx?Type=Faction",
+        "Traits.aspx?Type=Family",
+        "Traits.aspx?Type=Mount",
+        "Traits.aspx?Type=Race",
+        "Traits.aspx?Type=Region",
+        "Traits.aspx?Type=Religion",
+        "Traits.aspx?Type=Drawback"
+      ],
       "detailPath": "TraitDisplay.aspx",
       "detailParameter": "ItemName"
     }

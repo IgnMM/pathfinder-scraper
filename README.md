@@ -28,9 +28,30 @@ npm install
 npm run pilot
 node src/cli.js scrape --class Cleric
 node src/cli.js scrape-collection --profile feats
+node src/cli.js coverage --profile feats --appFile ../pathfinder-tools/calc/index.html
+node src/cli.js coverage --profile traits --appFile ../pathfinder-tools/calc/index.html
 npm run extract
 npm run validate
 ```
+
+## Checking feat/trait coverage against the app
+
+`coverage --profile feats|traits [--appFile <path>]` answers "does the app
+have every AoN feat/trait name accounted for" cheaply -- it downloads only
+the collection's index page(s) (one request for feats; traits are listed per
+category on AoN, one request per category, see `config.json`), never the
+thousands of individual detail pages. Results are written to
+`work/coverage/<profile>-canonical.json` (every AoN name found) and, when
+`--appFile` is given, `work/coverage/<profile>-diff.json` (`missing`: AoN has
+it, the app file doesn't; `extra`: the app file has a name AoN's current
+listing doesn't recognise -- usually a rename/errata or a typo, worth a human
+look, not necessarily wrong).
+
+`--appFile` must point at a source file where each entry looks like
+`name:'X',category:'feat'` (or `'trait'`) with those two fields adjacent --
+this matches `pathfinder-tools/calc/index.html`'s own embedded `MODIFIERS`
+array today. If that file's structure ever changes, `src/coverage.js`'s
+extractor (and its own doc comment) needs re-checking, not just the config.
 
 ## Data boundaries
 

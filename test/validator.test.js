@@ -39,3 +39,18 @@ test('validation compares the complete section, not a prefix', async t => {
   assert.equal(failing.status, 'FAIL');
   assert.ok(failing.errors.some(error => error.includes('complete DOM-derived section mismatch')));
 });
+
+test('validation rejects an archetype discovered in the index but never downloaded', async t => {
+  const { root } = await fixture();
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const manifestFile = path.join(root, 'manifests', 'pages.json');
+  const manifest = JSON.parse(await fs.readFile(manifestFile, 'utf8'));
+  manifest.pages.index = {
+    pageType: 'archetype-index',
+    discoveredEntityIds: ['fighter:missing-archetype']
+  };
+  await fs.writeFile(manifestFile, JSON.stringify(manifest));
+  const report = await validateAll(root);
+  assert.equal(report.status, 'FAIL');
+  assert.ok(report.errors.some(error => error.includes('discovered in index but absent')));
+});

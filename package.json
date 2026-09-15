@@ -1,0 +1,19 @@
+{
+  "name": "pathfinder-aon-documentary-scraper",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "scrape": "node src/cli.js scrape",
+    "extract": "node src/cli.js extract",
+    "validate": "node src/cli.js validate",
+    "pilot": "node src/cli.js pilot --class Fighter",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "cheerio": "1.1.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

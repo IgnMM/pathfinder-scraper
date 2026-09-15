@@ -1,0 +1,32 @@
+{
+  "baseUrl": "https://aonprd.com/",
+  "requestDelayMs": 1800,
+  "requestTimeoutMs": 30000,
+  "maxRetries": 3,
+  "userAgent": "PathfinderToolsDocumentaryScraper/1.0 (+local research; respectful cached retrieval)",
+  "workDirectory": "work",
+  "existingCoverageFile": "input/existing-coverage.json",
+  "collections": {
+    "feats": {
+      "entityType": "feat",
+      "indexUrls": ["Feats.aspx"],
+      "detailPath": "FeatDisplay.aspx",
+      "detailParameter": "ItemName"
+    },
+    "traits": {
+      "entityType": "trait",
+      "indexUrls": ["Traits.aspx"],
+      "detailPath": "TraitDisplay.aspx",
+      "detailParameter": "ItemName"
+    }
+  },
+  "classes": [
+    "Alchemist", "Antipaladin", "Arcanist", "Barbarian", "Bard", "Bloodrager",
+    "Brawler", "Cavalier", "Cleric", "Druid", "Fighter", "Gunslinger", "Hunter",
+    "Inquisitor", "Investigator", "Kineticist", "Magus", "Medium", "Mesmerist",
+    "Monk", "Monk (Unchained)", "Ninja", "Occultist", "Oracle", "Paladin",
+    "Psychic", "Ranger", "Rogue", "Samurai", "Shaman", "Shifter", "Skald",
+    "Sorcerer", "Spiritualist", "Summoner", "Swashbuckler", "Vigilante",
+    "Warpriest", "Witch", "Wizard"
+  ]
+}

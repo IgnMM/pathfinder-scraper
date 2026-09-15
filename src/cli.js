@@ -56,6 +56,12 @@ if (command === 'scrape') {
   const report = await validateAll(root);
   console.log(`${report.status}: ${report.counts.entities} entities, ${report.counts.errors} errors, ${report.counts.warnings} warnings.`);
   if (report.status !== 'PASS') process.exitCode = 1;
+} else if (command === 'diverse-pilot') {
+  await scrape(['Cleric', 'Druid', 'Kineticist', 'Cavalier']);
+  await extractAll(config, root);
+  const report = await validateAll(root);
+  console.log(`${report.status}: ${report.counts.entities} entities, ${report.counts.errors} errors, ${report.counts.warnings} warnings.`);
+  if (report.status !== 'PASS') process.exitCode = 1;
 } else if (command === 'run') {
   await scrape(config.classes);
   await extractAll(config, root);
@@ -63,5 +69,5 @@ if (command === 'scrape') {
   console.log(`${report.status}: ${report.counts.entities} entities, ${report.counts.errors} errors, ${report.counts.warnings} warnings.`);
   if (report.status !== 'PASS') process.exitCode = 1;
 } else {
-  console.log('Commands: pilot, run, scrape --class Fighter, scrape-collection --profile feats, extract, validate');
+  console.log('Commands: pilot, diverse-pilot, run, scrape --class Fighter, scrape-collection --profile feats, extract, validate');
 }

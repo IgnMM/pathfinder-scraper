@@ -13,9 +13,9 @@ The `work/` directory is ignored. Raw HTML, checkpoints, generated JSON and repo
 ## Windows use
 
 1. Double-click `RUN_SCRAPER.bat`.
-2. Choose `1` for the Fighter pilot.
+2. Choose `1` for the Fighter pilot or `2` for the approved four-class diversity test.
 3. Review `work/reports/validation.json`.
-4. Choose `2` only after the pilot has been reviewed.
+4. Choose the full-run option only after both pilots have been reviewed.
 
 The downloader saves every page and updates its checkpoint immediately. Re-running it skips valid cached pages and retries prior failures.
 

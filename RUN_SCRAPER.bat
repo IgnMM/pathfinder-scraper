@@ -23,12 +23,15 @@ if errorlevel 4 goto :feats
 if errorlevel 3 goto :validate
 if errorlevel 2 goto :all
 call npm run pilot
+if errorlevel 1 goto :failed
 goto :done
 :all
 call node src/cli.js run
+if errorlevel 1 goto :failed
 goto :done
 :validate
 call npm run validate
+if errorlevel 1 goto :failed
 goto :done
 :feats
 call node src/cli.js scrape-collection --profile feats
@@ -37,8 +40,12 @@ call npm run extract
 call npm run validate
 goto :done
 :failed
-echo The scraper stopped because a command failed.
+echo.
+echo FAILED. Cached pages and checkpoints were preserved.
+echo Run the same option again to resume. Do not treat this run as complete.
+goto :end
 :done
 echo.
-echo Finished. See the work\reports folder for details.
+echo PASS. See the work\reports folder for details.
+:end
 pause

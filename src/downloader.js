@@ -132,7 +132,17 @@ export class Downloader {
       if (!parsed.pathname.toLowerCase().endsWith(`/${profile.detailPath.toLowerCase()}`)) return;
       const canonicalName = parsed.searchParams.get(profile.detailParameter);
       if (!canonicalName) return;
-      const name = $(element).text().trim() || canonicalName;
+      // canonicalName (straight from the URL's ItemName param) is always the
+      // real, authoritative item name. The anchor's own visible text is NOT
+      // a safe fallback source of truth -- on AoN's per-category trait
+      // listing pages (Traits.aspx?Type=X) the link text is a generic
+      // "Link" label for every single row, not the trait's name (confirmed
+      // in a real full scrape: every one of ~1978 trait entries got
+      // entityName "Link", producing entityId "trait:link" for all of them
+      // -- a real, reproduced bug, not a hypothetical). Feats.aspx happens
+      // to use the real name as link text, so this previously went
+      // unnoticed there.
+      const name = canonicalName || $(element).text().trim();
       found.set(url, { name, canonicalName });
     });
     return [...found.entries()].map(([url, item]) => ({ url, ...item }));

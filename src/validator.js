@@ -31,10 +31,16 @@ export async function validateAll(root) {
       errors.push(`${record.id}: section count differs from cached source (${record.sections.length}/${independentlyExtracted.sections.length})`);
     }
     if (!record.sections.length) warnings.push(`${record.id}: no documentary sections detected`);
-    let expectedOrder = 1;
+    let previousSourceOrder = 0;
     for (const [sectionIndex, section] of record.sections.entries()) {
-      if (section.sourceOrder !== expectedOrder) errors.push(`${record.id}: non-contiguous section order at ${section.heading}`);
-      expectedOrder += 1;
+      // AoN sometimes places empty heading nodes between real documentary
+      // sections. The extractor preserves their DOM positions, so valid
+      // sourceOrder values can contain gaps (for example 1, 3, 5, 7, 9).
+      // What matters is that retained sections remain strictly ordered.
+      if (!Number.isInteger(section.sourceOrder) || section.sourceOrder <= previousSourceOrder) {
+        errors.push(`${record.id}: invalid section order at ${section.heading}`);
+      }
+      previousSourceOrder = section.sourceOrder;
       if (!section.mechanicalText) errors.push(`${record.id}: empty section ${section.heading}`);
       if (!normalizedPage.includes(section.mechanicalText)) errors.push(`${record.id}: complete section not found in normalized cached HTML: ${section.heading}`);
       const sourceSection = independentlyExtracted.sections[sectionIndex];

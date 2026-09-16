@@ -54,3 +54,12 @@ test('validation rejects an archetype discovered in the index but never download
   assert.equal(report.status, 'FAIL');
   assert.ok(report.errors.some(error => error.includes('discovered in index but absent')));
 });
+
+test('validation allows gaps in DOM source order caused by omitted empty headings', async t => {
+  const { root, record } = await fixture();
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  record.sections[0].sourceOrder = 3;
+  await fs.writeFile(path.join(root, 'documentary-json', 'entities.json'), JSON.stringify([record]));
+  const report = await validateAll(root);
+  assert.equal(report.status, 'PASS');
+});
